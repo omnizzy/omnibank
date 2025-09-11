@@ -1,0 +1,13 @@
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/repository/UserRepository.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/dto/BankResponse.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/dto/UserRequest.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/dto/AccountInfo.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/service/serviceImpl/UserServiceImpl.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/service/EmailService.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/controller/UserController.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/service/serviceImpl/EmailServiceImpl.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/service/UserService.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/entity/User.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/utils/AccountUtils.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/dto/EmailDetails.java
+/Users/decagon/Documents/omnibank/src/main/java/com/omnigroup/omnibank/OmnibankApplication.java
