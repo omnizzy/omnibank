@@ -1,9 +1,6 @@
 package com.omnigroup.omnibank.service.serviceImpl;
 
-import com.omnigroup.omnibank.dto.AccountInfo;
-import com.omnigroup.omnibank.dto.BankResponse;
-import com.omnigroup.omnibank.dto.EmailDetails;
-import com.omnigroup.omnibank.dto.UserRequest;
+import com.omnigroup.omnibank.dto.*;
 import com.omnigroup.omnibank.entity.User;
 import com.omnigroup.omnibank.repository.UserRepository;
 import com.omnigroup.omnibank.service.EmailService;
@@ -67,5 +64,17 @@ public class UserServiceImpl implements UserService {
                         .accountName(savedUser.getFirstName() + " " + savedUser.getOtherName() + " " + savedUser.getLastName())
                         .build())
                 .build();
+    }
+
+    @Override
+    public BankResponse balanceEnquiry(EnquiryRequest request) {
+        //check if account exists
+        boolean isAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
+        return null;
+    }
+
+    @Override
+    public String nameEnquiry(EnquiryRequest request) {
+        return null;
     }
 }
