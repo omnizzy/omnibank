@@ -70,7 +70,23 @@ public class UserServiceImpl implements UserService {
     public BankResponse balanceEnquiry(EnquiryRequest request) {
         //check if account exists
         boolean isAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
-        return null;
+        if (!isAccountExists) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXITS_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXITS_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+        User foundUser = userRepository.findByAccountNumber(request.getAccountNumber());
+        return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_FOUND_CODE)
+                .responseMessage(AccountUtils.ACCOUNT_FOUND_MESSAGE)
+                .accountInfo(AccountInfo.builder()
+                        .accountBalance(foundUser.getAccountBalance())
+                        .accountNumber(request.getAccountNumber())
+                        .accountName(foundUser.getFirstName() + " " + foundUser.getOtherName() + " " + foundUser.getLastName())
+                        .build())
+                .build();
     }
 
     @Override
