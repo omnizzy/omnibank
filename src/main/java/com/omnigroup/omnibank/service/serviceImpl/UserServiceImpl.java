@@ -7,6 +7,7 @@ import com.omnigroup.omnibank.service.EmailService;
 import com.omnigroup.omnibank.service.UserService;
 import com.omnigroup.omnibank.utils.AccountUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 
 @Service
 @Data
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -91,6 +93,76 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String nameEnquiry(EnquiryRequest request) {
-        return null;
+        //check if account exists
+        boolean isAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
+        if (!isAccountExists) {
+            return AccountUtils.ACCOUNT_NOT_EXITS_MESSAGE;
+        }
+        User foundUser = userRepository.findByAccountNumber(request.getAccountNumber());
+        return foundUser.getFirstName() + " " + foundUser.getOtherName() + " " + foundUser.getLastName();
     }
+
+    @Override
+    public BankResponse creditAccount(CreditDebitRequest request) {
+        boolean isAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
+        if (!isAccountExists) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXITS_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXITS_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+        User userToCredit = userRepository.findByAccountNumber(request.getAccountNumber());
+        userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(request.getAmount()));
+        userRepository.save(userToCredit);
+
+        return BankResponse.builder()
+                .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS)
+                .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
+                .accountInfo(AccountInfo.builder()
+                        .accountName(userToCredit.getFirstName() + " " + userToCredit.getOtherName() + " " + userToCredit.getLastName())
+                        .accountBalance(userToCredit.getAccountBalance())
+                        .accountNumber(request.getAccountNumber())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public BankResponse debitAccount(CreditDebitRequest request) {
+        //check if account exists
+        //check if amount to withdraw is not less than account balance
+        boolean isAccountExists = userRepository.existsByAccountNumber(request.getAccountNumber());
+        if (!isAccountExists) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_NOT_EXITS_CODE)
+                    .responseMessage(AccountUtils.ACCOUNT_NOT_EXITS_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+        }
+
+        User userToDebit = userRepository.findByAccountNumber(request.getAccountNumber());
+        if (!(userToDebit.getAccountBalance().compareTo(request.getAmount()) >= 0)) {
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.INSUFFICIENT_FUND_CODE)
+                    .responseMessage(AccountUtils.INSUFFICIENT_FUND_MESSAGE)
+                    .accountInfo(null)
+                    .build();
+
+        }
+        else {
+            userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(request.getAmount()));
+            userRepository.save(userToDebit);
+            return BankResponse.builder()
+                    .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS)
+                    .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
+                    .accountInfo(AccountInfo.builder()
+                            .accountNumber(request.getAccountNumber())
+                            .accountName(userToDebit.getFirstName() + " " + userToDebit.getOtherName() + " " + userToDebit.getLastName())
+                            .accountBalance(userToDebit.getAccountBalance() )
+                            .build())
+                    .build();
+        }
+
+    }
+
 }
