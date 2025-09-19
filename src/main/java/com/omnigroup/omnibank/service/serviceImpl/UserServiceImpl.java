@@ -165,4 +165,14 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public BankResponse transfer(TransferRequest request) {
+        // get the account to debit(check if account exists)
+        //check if the amount to debit is not more than balance
+        //debit the account
+        //get the account to credit
+        //credit the account
+        return null;
+    }
+
 }
