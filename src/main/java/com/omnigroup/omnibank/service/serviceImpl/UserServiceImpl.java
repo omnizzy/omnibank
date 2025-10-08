@@ -4,6 +4,7 @@ import com.omnigroup.omnibank.dto.*;
 import com.omnigroup.omnibank.entity.User;
 import com.omnigroup.omnibank.repository.UserRepository;
 import com.omnigroup.omnibank.service.EmailService;
+import com.omnigroup.omnibank.service.TransactionService;
 import com.omnigroup.omnibank.service.UserService;
 import com.omnigroup.omnibank.utils.AccountUtils;
 import lombok.Data;
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
     @Autowired
     EmailService emailService;
+    @Autowired
+    TransactionService transactionService;
+
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
         if (userRepository.existsByEmail(userRequest.getEmail())) {
@@ -116,6 +120,14 @@ public class UserServiceImpl implements UserService {
         userToCredit.setAccountBalance(userToCredit.getAccountBalance().add(request.getAmount()));
         userRepository.save(userToCredit);
 
+        //Save transaction
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountNumber(userToCredit.getAccountNumber())
+                .transactionType("CREDIT")
+                .amount(request.getAmount())
+                .build();
+        transactionService.saveTransaction(transactionDto );
+
         return BankResponse.builder()
                 .responseCode(AccountUtils.ACCOUNT_CREDITED_SUCCESS)
                 .responseMessage(AccountUtils.ACCOUNT_CREDITED_SUCCESS_MESSAGE)
@@ -152,6 +164,15 @@ public class UserServiceImpl implements UserService {
         else {
             userToDebit.setAccountBalance(userToDebit.getAccountBalance().subtract(request.getAmount()));
             userRepository.save(userToDebit);
+
+            //Save transaction
+            TransactionDto transactionDto = TransactionDto.builder()
+                    .accountNumber(userToDebit.getAccountNumber())
+                    .transactionType("DEBIT")
+                    .amount(request.getAmount())
+                    .build();
+            transactionService.saveTransaction(transactionDto );
+
             return BankResponse.builder()
                     .responseCode(AccountUtils.ACCOUNT_DEBITED_SUCCESS)
                     .responseMessage(AccountUtils.ACCOUNT_DEBITED_SUCCESS_MESSAGE)
@@ -208,7 +229,23 @@ public class UserServiceImpl implements UserService {
                 .recipient(destinationAccountUser.getEmail())
                 .messageBody("The sum of " + request.getAmount() + "has been credited to your account from " + sourceUserName +" Your current balance is " + destinationAccountUser.getAccountBalance())
                 .build();
-        emailService.sendEmailAlert(debitAlert);
+        emailService.sendEmailAlert(creditAlert);
+
+        //Save transaction
+        TransactionDto transactionDto = TransactionDto.builder()
+                .accountNumber(soureAccountUser.getAccountNumber())
+                .transactionType("DEBIT")
+                .amount(request.getAmount())
+                .build();
+        transactionService.saveTransaction(transactionDto );
+
+        //Save transaction
+        TransactionDto transactionDto1 = TransactionDto.builder()
+                .accountNumber(destinationAccountUser.getAccountNumber())
+                .transactionType("CREDIT")
+                .amount(request.getAmount())
+                .build();
+        transactionService.saveTransaction(transactionDto1 );
 
         return BankResponse.builder()
                 .responseCode(AccountUtils.TRANSFER_SUCCESSFUL_CODE)
