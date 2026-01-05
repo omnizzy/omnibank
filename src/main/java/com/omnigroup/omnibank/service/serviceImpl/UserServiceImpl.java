@@ -7,9 +7,11 @@ import com.omnigroup.omnibank.service.EmailService;
 import com.omnigroup.omnibank.service.TransactionService;
 import com.omnigroup.omnibank.service.UserService;
 import com.omnigroup.omnibank.utils.AccountUtils;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +19,7 @@ import java.math.BigDecimal;
 @Service
 @Data
 @Slf4j
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -25,6 +28,8 @@ public class UserServiceImpl implements UserService {
     EmailService emailService;
     @Autowired
     TransactionService transactionService;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Override
     public BankResponse createAccount(UserRequest userRequest) {
@@ -46,7 +51,8 @@ public class UserServiceImpl implements UserService {
                 .accountNumber(AccountUtils.generateAccountNumber())
                 .accountBalance(BigDecimal.ZERO)
                 .email(userRequest.getEmail())
-                .phoneNumber(userRequest.getPhoneNumber())
+                .password(userRequest.getPassword())
+                .phoneNumber(passwordEncoder.encode(userRequest.getPhoneNumber()))
                 .alternativePhoneNumber(userRequest.getAlternativePhoneNumber())
                 .status("ACTIVE")
                 .build();
