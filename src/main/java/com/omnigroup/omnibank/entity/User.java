@@ -31,6 +31,7 @@ public class User {
     private  String phoneNumber;
     private String alternativePhoneNumber;
     private String status;
+    private Role role;
     @CreationTimestamp
     private LocalDateTime createdAt;
     @CreationTimestamp
